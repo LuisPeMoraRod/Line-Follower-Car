@@ -11,6 +11,7 @@
 // Assign each GPIO to a relay
 // int relayGPIOs[NUM_SWITCHES] = {5, 4, 14, 12, 13};
 
+
 int switches[NUM_SWITCHES] = {0, 0, 0, 0};
 
 const int pinSensorL = 2;
@@ -18,6 +19,10 @@ const int pinSensorR = 0;
 
 int sensorL;
 int sensorR;
+
+const int RIGHT = 1;
+const int LEFT = 0;
+int lastDir = 1; // variable to control the last direction
 
 const int motorL_A = 12;
 const int motorL_B = 14;
@@ -185,10 +190,16 @@ void line_follow(int sensorL, int sensorR){
   Serial.println(String(sensorL)+String(sensorR));
   
   if ((sensorL == 0) and (sensorR == 0)){
-    stand_by();
+    if (lastDir == RIGHT){
+      move_right();
+    } else {
+      move_left();
+    }
   } else if ((sensorL == 0) and (sensorR == 1)){
+    lastDir = RIGHT;
     move_right();
   }else if ((sensorL == 1) and (sensorR == 0)){
+    lastDir = LEFT;
     move_left();
   }else if ((sensorL == 1) and (sensorR == 1)){
     move_forward();
