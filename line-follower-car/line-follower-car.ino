@@ -30,11 +30,11 @@ const int motorL_B = 14;
 const int motorR_A = 4;
 const int motorR_B = 5;
 
-byte speed = 255;
+byte speed = 128;
 
 // Replace with your network credentials
-const char* ssid = "Tatooine"; // "REPLACE_WITH_YOUR_SSID";
-const char* password = "HanSoloRIP"; // "REPLACE_WITH_YOUR_PASSWORD";
+const char* ssid = "iPhoneLP"; // "REPLACE_WITH_YOUR_SSID";
+const char* password = "iPhoneLP"; // "REPLACE_WITH_YOUR_PASSWORD";
 
 const char* PARAM_INPUT_1 = "relay";  
 const char* PARAM_INPUT_2 = "state";
@@ -149,9 +149,19 @@ void loop() {
   if ((switches[0] == 1) && (switches[1] == 1) && (switches[2] == 1) && (switches[3] == 1)){
     stand_by();
   }
+  else if ((switches[0] == 0) && (switches[1] == 1) && (switches[2] == 1) && (switches[3] == 1)){
+    forward_wait();
+  }
   else if ((switches[0] == 0) && (switches[1] == 0) && (switches[2] == 1) && (switches[3] == 1)){
     line_follow(sensorL, sensorR);
-  }else{
+  }
+  else if ((switches[0] == 0) && (switches[1] == 0) && (switches[2] == 0) && (switches[3] == 1)){
+    zig_zag();
+  }
+  else if ((switches[0] == 0) && (switches[1] == 0) && (switches[2] == 0) && (switches[3] == 0)){
+    circle_bw();
+  }
+  else{
     stand_by();
   }
    
@@ -185,24 +195,67 @@ void move_right(){
   digitalWrite(motorR_B, LOW);
 }
 
+void move_left_line(){
+  digitalWrite(motorL_A, LOW);
+  digitalWrite(motorL_B, HIGH);
+  digitalWrite(motorR_A, HIGH);
+  digitalWrite(motorR_B, LOW);
+}
+
+void move_right_line(){
+  digitalWrite(motorL_A, HIGH);
+  digitalWrite(motorL_B, LOW);
+  digitalWrite(motorR_A, LOW);
+  digitalWrite(motorR_B, HIGH);
+}
+
+void forward_wait()
+{
+  move_forward();
+  delay(2000);
+  stand_by();
+  delay(2000);
+}
+
 void line_follow(int sensorL, int sensorR){
-  
-  Serial.println(String(sensorL)+String(sensorR));
-  
+    
   if ((sensorL == 0) and (sensorR == 0)){
     if (lastDir == RIGHT){
-      move_right();
+      move_right_line();
     } else {
-      move_left();
+      move_left_line();
     }
   } else if ((sensorL == 0) and (sensorR == 1)){
     lastDir = RIGHT;
-    move_right();
+    move_right_line();
   }else if ((sensorL == 1) and (sensorR == 0)){
     lastDir = LEFT;
-    move_left();
+    move_left_line();
   }else if ((sensorL == 1) and (sensorR == 1)){
     move_forward();
   }
 
+}
+
+void zig_zag(){
+  if (lastDir == RIGHT){
+    move_left();
+    delay(800);
+    move_forward();
+    delay(2000);
+    lastDir = LEFT;  
+  } else if (lastDir == LEFT){
+    move_right();
+    delay(800);
+    move_forward();
+    delay(2000);
+    lastDir = RIGHT;  
+  }
+}
+
+void circle_bw(){
+  digitalWrite(motorL_A, LOW);
+  digitalWrite(motorL_B, LOW);
+  digitalWrite(motorR_A, LOW);
+  digitalWrite(motorR_B, HIGH);
 }
